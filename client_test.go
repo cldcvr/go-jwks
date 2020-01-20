@@ -111,7 +111,7 @@ func (t *mockSuccessTransport) RoundTrip(req *http.Request) (*http.Response, err
 		Request:    req,
 		StatusCode: http.StatusOK,
 	}
-	responseBody := `{"keys":[{"alg":"RS256","kty":"RSA","use":"sig","x5c":["D4dtuk"],"n":"VKOoRQ","e":"AQAB","kid":"GREY2MQ","x5t":"GREY2MQ"}]}`
+	responseBody := `{"keys":[{"alg":"RS256","kty":"RSA","use":"sig","x5c":["D4dtuk"],"n":"VKOoRQ","e":"AQAB","kid":"GREY2MQ","x5t":"GREY2MQ"}, {"alg":"RS256","kty":"RSA","use":"sig","x5c":["D4dtuk"],"n":"VKOoRQ","e":"AQAB","kid":"BLACK2MQ","x5t":"BLACK2MQ"}]}`
 	response.Body = ioutil.NopCloser(strings.NewReader(responseBody))
 	return response, nil
 }
@@ -176,7 +176,7 @@ func TestSuccessHttpRequestDebugLogging(t *testing.T) {
 
 	loggedMsg := buf.String()
 	assert(t, err == nil)
-	assert(t, strings.Contains(loggedMsg, "Fetched 1 keys"))
+	assert(t, strings.Contains(loggedMsg, "Fetched 2 keys"))
 }
 
 func TestSuccessHttpRequestNoKey(t *testing.T) {
@@ -185,7 +185,7 @@ func TestSuccessHttpRequestNoKey(t *testing.T) {
 	keys, err := client.GetKeys()
 
 	assert(t, err == nil)
-	assert(t, len(keys) == 1)
+	assert(t, len(keys) == 2)
 
 	key := keys[0]
 	assert(t, key.Alg == "RS256")
@@ -212,6 +212,7 @@ func TestGetSigningKeyForExistingKey(t *testing.T) {
 	key, err := client.GetSigningKey("GREY2MQ")
 	assert(t, err == nil)
 	assert(t, key != nil)
+	assert(t, key.Kid == "GREY2MQ")
 }
 
 func TestGetSigningKeyForNonExistingKey(t *testing.T) {
